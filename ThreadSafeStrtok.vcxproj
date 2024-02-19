@@ -19,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="com_github_coderodde_my_assert.c" />
+    <ClCompile Include="assertlib.c" />
     <ClCompile Include="com_github_coderodde_thread_safe_strtok.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="com_github_coderodde_my_assert.h" />
+    <ClInclude Include="assertlib.h" />
     <ClInclude Include="com_github_coderodde_thread_safe_strtok.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
