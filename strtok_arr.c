@@ -1,14 +1,14 @@
-#include "com_github_coderodde_thread_safe_strtok.h"
+#include "strtok_arr.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
 
-typedef struct string_token_t {
+typedef struct token_t {
     const char* token;
-    struct string_token_t* p_next_string_token;
-} string_token_t;
+    struct token_t* p_next_string_token;
+} token_t;
 
 /********************************************************************
 * Returns 'true' iff 'ch' is mentioned in the delimiter characters. *
@@ -24,35 +24,20 @@ static bool character_belongs_to_delimiter_set(
 * Frees the chain of tokens starting from 'p_token'. This function assumes *
 * that the input 'p_token' is the head token.                              *
 ***************************************************************************/
-static void free_tokens(string_token_t* p_token) {
+static void free_tokens(token_t* p_token) {
     while (p_token != NULL) {
-        string_token_t* p_next_token = p_token->p_next_string_token;
-        free(p_token->token);
+        token_t* p_next_token = p_token->p_next_string_token;
         free(p_token);
         p_token = p_next_token;
     }
 }
 
-static string_token_t* string_token_alloc(const char* const token) {
-
-    string_token_t* st = malloc(sizeof *st);
-
-    if (st == NULL) {
-        return NULL;
-    }
-
-    st->token = token;
-    st->p_next_string_token = NULL;
-
-    return st;
-}
-
 /************************************************
 * Creates a copy of a token residing in 'text'. *
 ************************************************/
-static const char* string_token_copy(const char* const text, 
-                                     size_t token_offset,
-                                     size_t token_length) {
+static const char* token_copy(char* text, 
+                              size_t token_offset,
+                              size_t token_length) {
 
     /* + 1 in order to malloc the space for zero-terminator: */
     char* token_text = malloc(token_length + 1);
@@ -72,15 +57,14 @@ static const char* string_token_copy(const char* const text,
     return token_text;
 }
 
-char** compute_string_tokens(const char* const text,
-                             const char* const delimiters) {
+char** strtok_arr(char* text, char* delimiters) {
 
     if (text == NULL || delimiters == NULL) {
         return NULL;
     }
 
-    string_token_t* p_head_string_token = NULL;
-    string_token_t* p_tail_string_token = NULL;
+    token_t* p_head_token = NULL;
+    token_t* p_tail_token = NULL;
 
     size_t text_length = strlen(text);
     size_t previous_token_start_index = 0;
@@ -92,30 +76,38 @@ char** compute_string_tokens(const char* const text,
         if (character_belongs_to_delimiter_set(ch, delimiters) || ch == '\0') {
             size_t token_length = i - previous_token_start_index;
 
-            const char* token_text = 
-                string_token_copy(text,
-                                  previous_token_start_index, 
-                                  token_length);
+            char* token_text = token_copy(text,
+                                          previous_token_start_index, 
+                                          token_length);
 
             if (token_text == NULL) {
-                free_tokens(p_head_string_token);
+                free_tokens(p_head_token);
                 return NULL;
             }
 
-            string_token_t* st = string_token_alloc(token_text);
+            token_t* st = malloc(sizeof *st);
 
             if (st == NULL) {
                 free(token_text);
-                free_tokens(p_head_string_token);
+                free_tokens(p_head_token);
                 return NULL;
             }
 
-            if (p_head_string_token == NULL) {
-                p_head_string_token = st;
-                p_tail_string_token = st;
+            st->token = token_text;
+            st->p_next_string_token = NULL;
+
+            if (st == NULL) {
+                free(token_text);
+                free_tokens(p_head_token);
+                return NULL;
+            }
+
+            if (p_head_token == NULL) {
+                p_head_token = st;
+                p_tail_token = st;
             } else {
-                p_tail_string_token->p_next_string_token = st;
-                p_tail_string_token = st;
+                p_tail_token->p_next_string_token = st;
+                p_tail_token = st;
             }
 
             previous_token_start_index = i + 1;
@@ -126,22 +118,23 @@ char** compute_string_tokens(const char* const text,
     char** return_token_array = malloc((number_of_tokens + 1) * sizeof(char*));
 
     if (return_token_array == NULL) {
-        free_tokens(p_head_string_token);
+        free_tokens(p_head_token);
         return NULL;
     }
 
     return_token_array[number_of_tokens] = NULL;
-    string_token_t* p_token = p_head_string_token;
+    token_t* p_token = p_head_token;
 
     for (size_t i = 0; i < number_of_tokens; i++) {
         return_token_array[i] = p_token->token;
         p_token = p_token->p_next_string_token;
     }
 
+    free_tokens(p_head_token);
     return return_token_array;
 }
 
-size_t compute_number_of_string_tokens(char** arr) {
+size_t strtok_arr_len(char** arr) {
     size_t number_of_tokens = 0;
     size_t i = 0;
 
@@ -153,4 +146,10 @@ size_t compute_number_of_string_tokens(char** arr) {
 
     abort();
     return 0;
+}
+
+void strtok_arr_free(char** arr) {
+    for (size_t i = 0; arr[i] != NULL; i++) {
+        free(arr[i]);
+    }
 }

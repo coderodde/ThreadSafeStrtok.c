@@ -18,7 +18,7 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="com_github_coderodde_thread_safe_strtok.c">
+    <ClCompile Include="strtok_arr.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="assertlib.c">
@@ -26,7 +26,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="com_github_coderodde_thread_safe_strtok.h">
+    <ClInclude Include="strtok_arr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="assertlib.h">

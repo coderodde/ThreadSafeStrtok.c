@@ -1,5 +1,5 @@
 #include "assertlib.h"
-#include "com_github_coderodde_thread_safe_strtok.h"
+#include "strtok_arr.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,39 +8,45 @@
 static void test_hello_world_1() {
     const char* text = "ab cd,";
     const char* delimiters = " ,\n";
-    char** arr = compute_string_tokens(text, delimiters);
-    const size_t number_of_string_tokens = compute_number_of_string_tokens(arr);
+    char** arr = strtok_arr(text, delimiters);
+    const size_t number_of_string_tokens = strtok_arr_len(arr);
 
     ASSERT(number_of_string_tokens == 3);
 
     ASSERT(strcmp(arr[0], "ab") == 0);
     ASSERT(strcmp(arr[1], "cd") == 0);
     ASSERT(strcmp(arr[2], "") == 0);
+
+    strtok_arr_free(arr);
 }
 
 static void test_hello_world_2() {
     const char* const text = ",";
     const char* const delimiters = " , ";
-    char** arr = compute_string_tokens(text, delimiters);
-    const size_t number_of_string_tokens = compute_number_of_string_tokens(arr);
+    char** arr = strtok_arr(text, delimiters);
+    const size_t number_of_string_tokens = strtok_arr_len(arr);
 
     ASSERT(number_of_string_tokens == 2);
 
     ASSERT(strcmp(arr[0], "") == 0);
     ASSERT(strcmp(arr[1], "") == 0);
+
+    strtok_arr_free(arr);
 }
 
 static void test_hello_world_3() {
     const char* const text = ", ";
     const char* const delimiters = " , ";
-    char** arr = compute_string_tokens(text, delimiters);
-    const size_t number_of_string_tokens = compute_number_of_string_tokens(arr);
+    char** arr = strtok_arr(text, delimiters);
+    const size_t number_of_string_tokens = strtok_arr_len(arr);
 
     ASSERT(number_of_string_tokens == 3);
 
     ASSERT(strcmp(arr[0], "") == 0);
     ASSERT(strcmp(arr[1], "") == 0);
     ASSERT(strcmp(arr[2], "") == 0);
+
+    strtok_arr_free(arr);
 }
 
 int main() {
